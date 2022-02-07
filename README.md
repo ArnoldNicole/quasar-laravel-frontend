@@ -1,6 +1,6 @@
-# MSocial (m_social)
+# QUASAR LARAVEL BOLERPLATE
 
-A simple social media app
+A simple layout for basic laravel api auth process and dashboard. 
 
 ## Install the dependencies
 
