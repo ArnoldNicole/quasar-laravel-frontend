@@ -69,8 +69,6 @@ export default route(function (/* { store, ssrContext } */) {
       const middleware = Array.isArray(to.meta.middleware) ? to.meta.middleware : [to.meta.middleware]; //auth
       const context = { from, next, to, Router };
       const nextMiddleware = nextFactory(context, middleware, 1);
-      // console.log(nextMiddleware);
-      // console.log(middleware[0]({ ...context, next: nextMiddleware }));
       return middleware[0]({ ...context, next: nextMiddleware });
     }
   

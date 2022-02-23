@@ -17,7 +17,7 @@ const routes = [
   {
     path:"/login",
     component:Login,
-    name:"Log In"
+    name:"LogIn"
   },
 
   // Always leave this as last one,

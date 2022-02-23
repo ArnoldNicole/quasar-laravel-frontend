@@ -1,6 +1,6 @@
 <template>
   <q-layout>
-    <q-page-container>
+    <q-page-container v-if="show_login">
       <q-page class="flex bg-image flex-center">
         <q-card v-bind:style="$q.screen.lt.sm?{'width': '80%'}:{'width':'30%'}">
           <q-card-section>
@@ -36,7 +36,7 @@
               />
 
               <div class="flex-container">
-                <q-btn label="Login" @click="attemptLogin" type="button" color="primary"/>
+                <q-btn :label="loading ? 'logging in...' : 'Login'" :disabled="loading" @click="attemptLogin" type="button" color="primary"/>
                 <q-btn label="Register" type="button" color="secondary"/>
 
               </div>
@@ -50,33 +50,46 @@
 
 <script>
 import {defineComponent} from 'vue'
-import {ref} from 'vue'
+import {mapActions ,  mapGetters} from 'vuex'
 import {callApi, showValidationErrors, showErrorMessage}  from '../utils/plugin';
 export default defineComponent({
   data(){
 return {
   base_link:'',
   username:'',
-  password:''
+  password:'',
+  loading:false,
+  show_login:false
 }
   },
+
   created(){
+    const session_key = window.localStorage.clear();
+    // console.log(session_key);
   this.base_link = `${process.env.API_HOST}`;
   this.loadCsrfToken();
+  if(this.isAuthenticated){
+    this.$router.push('/');
+  }
+    },
+    computed:{
+     ...mapGetters('auth', ['isAuthenticated']),
     },
   methods:{
-    async loadCsrfToken(){
-      await callApi('get', `${this.base_link}/sanctum/csrf-cookie`)
- },
+    ...mapActions('auth', ["logIn","logOut"]),
    async attemptLogin(){
+     this.loading = true;
      let obj ={username:this.username, password:this.password};
      const res =  await callApi('post', `${this.base_link}/login`, obj)
      switch (res.status) {
        case 200:
-      return this.$router.push('/');
+          this.loadUserAccount();
+        break;
+        case 302:
+         this.loadUserAccount();
          break;
        case 422:
-         showValidationErrors(res);
+          showValidationErrors(res);
          break;
      case 429:
        showErrorMessage(res.data);
@@ -84,7 +97,25 @@ return {
        default:
          break;
      }
-    }
+     this.loading = false;
+    },
+    async loadUserAccount(){
+     const res = await callApi('get',`${this.base_link}/api/user/info`);
+      if(res.status == 200){
+          this.logIn(res.data)
+          this.$router.push('/')
+      }else{
+        if(res.status == 401){
+          this.show_login = true;
+        }
+      }
+    },
+  async loadCsrfToken(){
+      const r =   await callApi('get', `${this.base_link}/sanctum/csrf-cookie`);
+      if(r.status ==204){
+        this.loadUserAccount();
+      }
+  },
   },
 })
 </script>

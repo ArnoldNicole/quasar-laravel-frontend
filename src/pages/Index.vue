@@ -51,7 +51,7 @@ export default defineComponent({
     }
   },
 created(){
-    // this.loadData()
+    this.loadData()
  }
 });
 </script>

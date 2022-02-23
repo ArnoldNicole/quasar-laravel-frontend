@@ -1,10 +1,9 @@
-import store from "../store";
-
+import store from "../store/index"
 export default function auth({ next, Router }) {
-    // if (!store.getters.isConfigured) {
-    //     return router.push('/app/settings');
-    // }
-    // return Router.push('/login');
-    // console.log(Router)
+  const s  = store();
+ const logged_in =  s.getters['auth/isAuthenticated'];
+    if(!logged_in){
+     return next('login')
+    }
     return next();
 }

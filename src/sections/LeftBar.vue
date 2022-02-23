@@ -13,7 +13,7 @@
     </q-list>
     <q-separator />
     <q-list >
-      <q-item clickable v-ripple @click="logout" class="fixed-bottom">
+      <q-item clickable v-ripple @click="end_session" class="fixed-bottom">
         <q-item-section avatar>
           <q-icon color="red" name="logout" class="text-white"/>
           </q-item-section>
@@ -27,6 +27,9 @@
 </template>
 <script>
 import { callApi  } from "src/utils/plugin"
+// import store from "../store/index"
+import { mapActions } from "vuex";
+
 export default {
   data() {
     return {
@@ -34,9 +37,11 @@ export default {
     }
   },
   methods:{
-   async logout(){
-  const res = await callApi('post',`${process.env.API_HOST}/logout`);
+    ...mapActions('auth',['logOutUser']),
+   async end_session(){
+      const res = await callApi('post',`${process.env.API_HOST}/logout`);
       if(res.status ==204){
+        this.logOutUser();
         window.location = '/login'
       }
     }
